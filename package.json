@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Teddy22/todo/issues"
   },
-  "homepage": "https://github.com/Teddy22/todo#readme"
+  "homepage": "https://github.com/Teddy22/todo#readme",
+  "dependencies": {
+    "aws-sdk": "^2.382.0"
+  }
 }
