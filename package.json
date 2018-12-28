@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Teddy22/todo#readme",
   "dependencies": {
-    "aws-sdk": "^2.382.0"
+    "aws-sdk": "^2.382.0",
+    "dotenv": "^6.2.0"
   }
 }
