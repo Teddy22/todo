@@ -11,29 +11,71 @@ AWS.config.update({
 
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
-const bucketName = 'todo-123';
+const usersBucketName = process.env.USERS_BUCKET_NAME;
+const itemsBucketName = process.env.ITEMS_BUCKET_NAME;
 
 console.log('getting buckets...');
 
-s3.listBuckets((err, data) => {
-    if (err) console.log('error: ', err);
-    else console.log(JSON.stringify(data, null, 4));
-});
+// getBucketObjects(usersBucketName)
+//     .then((data) => {
+//         console.log(`objects in bucket ${usersBucketName}`, data);
+//     })
+//     .catch((err) => {
+//         console.log(`error getting items from bucket ${usersBucketName}`);
+//     });
 
-s3.putObject({ Bucket: bucketName, Key: 'id1234', Body: 'Hello 4' })
-    .promise()
-    .then((result) => {
-        console.log('success:', result);
-    })
-    .catch(err => console.log);
+// addUser({ name: 'Teddy', id: 'teddy', auth: {} })
+//     .then((data) => {
+//         console.log('user created successfully!!', data);
+//     })
+//     .catch(() => {
+//         console.log('failed to create user', err);
+//     });
 
-s3.listObjects({ Bucket: bucketName }, (err, data) => {
-    if (err) console.log('error: ', err);
-    else console.log(`objects for bucket ${bucketName}...`, JSON.stringify(data, null, 4));
-});
+// getUserById('Teddy.json')
+//     .then((userData) => {
+//         console.log(JSON.parse(userData.Body));
+//     })
+//     .catch((err) => {
+//         console.log('error getting user:', err);
+//     });
 
-item = {
-    id: String,
-    title: 'Clean House',
-    description: 'Clean house after work'
+function addUser(user) {
+    return new Promise((resolve, reject) => {
+        /**
+         * user = {
+         *  name: String,
+         *  id: String,
+         *  auth: {
+         *    token: String
+         *  }
+         * }
+         */
+        s3.putObject({ Bucket: usersBucketName, Key: `${user.name}.json`, Body: JSON.stringify(user) })
+            .promise()
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+function getUserById(userId) {
+    return getBucketItemByKey(usersBucketName, userId);
+}
+
+function getBucketItemByKey(bucketName, objectKey) {
+    return new Promise((resolve, reject) => {
+        s3.getObject({ Bucket: bucketName, Key: objectKey }, (err, data) => {
+            if (err) return reject(err);
+            else resolve(data);
+        });
+    });
+}
+
+function getBucketObjects(bucketName) {
+    return new Promise((resolve, reject) => {
+        s3.listObjects({ Bucket: bucketName }, (err, data) => {
+            if (err) return reject(err);
+            else return resolve(data);
+        });
+    });
 }
