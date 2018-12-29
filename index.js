@@ -1,9 +1,8 @@
-const AWS = require('aws-sdk');
-
-// load env variables
 require('dotenv').config();
 
-// configure AWS env
+const AWS = require('aws-sdk');
+const uuid = require('uuid/v1');
+
 AWS.config.update({
     accessKeyId: process.env.AWSAccessKeyId,
     secretAccessKey: process.env.AWSSecretKey
@@ -13,8 +12,6 @@ const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 const usersBucketName = process.env.USERS_BUCKET_NAME;
 const itemsBucketName = process.env.ITEMS_BUCKET_NAME;
-
-console.log('getting buckets...');
 
 // getBucketObjects(usersBucketName)
 //     .then((data) => {
@@ -40,6 +37,14 @@ console.log('getting buckets...');
 //         console.log('error getting user:', err);
 //     });
 
+addToDoItem({ userId: 'Teddy', title: 'To Do item 1' })
+    .then(data => {
+        console.log('item added successfully', data);
+    })
+    .catch(err => {
+        console.log('error adding item:', err);
+    });
+
 function addUser(user) {
     return new Promise((resolve, reject) => {
         /**
@@ -52,6 +57,21 @@ function addUser(user) {
          * }
          */
         s3.putObject({ Bucket: usersBucketName, Key: `${user.name}.json`, Body: JSON.stringify(user) })
+            .promise()
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+function addToDoItem(item) {
+    return new Promise((resolve, reject) => {
+        /**
+         * item = {
+         *  title: String,
+         *  userId: String,
+         * }
+         */
+        s3.putObject({ Bucket: itemsBucketName, Key: `${uuid()}.json`, Body: JSON.stringify(item) })
             .promise()
             .then(resolve)
             .catch(reject);
